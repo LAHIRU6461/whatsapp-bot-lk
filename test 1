@@ -1,0 +1,30 @@
+.github/workflows/auto-comment.yml
+name: Auto Comment on Issues and PRs
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add Comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const isIssue = !!context.payload.issue;
+            const number = isIssue ? context.payload.issue.number : context.payload.pull_request.number;
+            const body = isIssue
+              ? "👋 Thanks for opening an issue! We'll take a look as soon as we can."
+              : "🎉 Thanks for your pull request! A reviewer will check it out shortly.";
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: number,
+              body: body
+            });
